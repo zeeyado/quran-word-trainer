@@ -35,8 +35,10 @@ const saved = loadSavedState();
 export default function App() {
   const [selectedChapter, setSelectedChapter] = useState<number>(saved?.chapter ?? 1);
   const [selectedReciter, setSelectedReciter] = useState(saved?.reciter ?? RECITERS[0].id);
+  const [showVerseRef, setShowVerseRef] = useState(true);
   const [showTransliteration, setShowTransliteration] = useState(false);
   const [showTranslation, setShowTranslation] = useState(false);
+  const [stopAfterSelection, setStopAfterSelection] = useState(true);
   const [immersiveEnabled, setImmersiveEnabled] = useState(false);
   const [tajweedEnabled, setTajweedEnabled] = useState(() => {
     try { return localStorage.getItem("qwt-tajweed") !== "false"; }
@@ -69,7 +71,7 @@ export default function App() {
     prevWord,
     seekToWord,
     setSpeed,
-  } = useAudioSync(audioFile, verses, savedWordIndex);
+  } = useAudioSync(audioFile, verses, savedWordIndex, stopAfterSelection);
 
   const currentChapter = chapters.find((ch) => ch.id === selectedChapter);
   const versesCount = currentChapter?.verses_count ?? 0;
@@ -141,6 +143,7 @@ export default function App() {
         ) : (
           <WordDisplay
             currentWord={currentWord}
+            showVerseRef={showVerseRef}
             showTransliteration={showTransliteration}
             showTranslation={showTranslation}
             tajweedEnabled={tajweedEnabled}
@@ -163,13 +166,17 @@ export default function App() {
         />
 
         <SettingsPanel
+          showVerseRef={showVerseRef}
           showTransliteration={showTransliteration}
           showTranslation={showTranslation}
+          stopAfterSelection={stopAfterSelection}
           immersiveEnabled={immersiveEnabled}
           tajweedEnabled={tajweedEnabled}
           themePreference={themePreference}
+          onToggleVerseRef={() => setShowVerseRef((v) => !v)}
           onToggleTransliteration={() => setShowTransliteration((v) => !v)}
           onToggleTranslation={() => setShowTranslation((v) => !v)}
+          onToggleStopAfter={() => setStopAfterSelection((v) => !v)}
           onToggleImmersive={() => setImmersiveEnabled((v) => !v)}
           onToggleTajweed={() => setTajweedEnabled((v) => !v)}
           onThemeChange={setTheme}

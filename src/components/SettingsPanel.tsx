@@ -1,13 +1,17 @@
 import type { ThemePreference } from "../hooks/useTheme";
 
 interface Props {
+  showVerseRef: boolean;
   showTransliteration: boolean;
   showTranslation: boolean;
+  stopAfterSelection: boolean;
   immersiveEnabled: boolean;
   tajweedEnabled: boolean;
   themePreference: ThemePreference;
+  onToggleVerseRef: () => void;
   onToggleTransliteration: () => void;
   onToggleTranslation: () => void;
+  onToggleStopAfter: () => void;
   onToggleImmersive: () => void;
   onToggleTajweed: () => void;
   onThemeChange: (theme: ThemePreference) => void;
@@ -20,19 +24,32 @@ const THEME_OPTIONS: { value: ThemePreference; label: string }[] = [
 ];
 
 export function SettingsPanel({
+  showVerseRef,
   showTransliteration,
   showTranslation,
+  stopAfterSelection,
   immersiveEnabled,
   tajweedEnabled,
   themePreference,
+  onToggleVerseRef,
   onToggleTransliteration,
   onToggleTranslation,
+  onToggleStopAfter,
   onToggleImmersive,
   onToggleTajweed,
   onThemeChange,
 }: Props) {
   return (
     <div className="settings-panel">
+      <label>
+        <input
+          type="checkbox"
+          checked={showVerseRef}
+          onChange={onToggleVerseRef}
+        />
+        Show Verse
+      </label>
+
       <label>
         <input
           type="checkbox"
@@ -49,6 +66,15 @@ export function SettingsPanel({
           onChange={onToggleTranslation}
         />
         Translation
+      </label>
+
+      <label>
+        <input
+          type="checkbox"
+          checked={stopAfterSelection}
+          onChange={onToggleStopAfter}
+        />
+        Stop After Surah
       </label>
 
       <label>

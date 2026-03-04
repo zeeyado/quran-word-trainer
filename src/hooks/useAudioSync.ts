@@ -28,10 +28,13 @@ interface AudioSyncState {
 export function useAudioSync(
   audioFile: ChapterAudioFile | null,
   verses: Verse[],
-  initialIndex?: number
+  initialIndex?: number,
+  stopAfterSelection?: boolean
 ) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const animFrameRef = useRef<number>(0);
+  const stopAfterRef = useRef(stopAfterSelection ?? true);
+  stopAfterRef.current = stopAfterSelection ?? true;
 
   // Build the flat synced word list (pure derivation from props)
   const syncedWords = useMemo(() => {
@@ -90,7 +93,9 @@ export function useAudioSync(
       idx = Math.min(initialIndex, syncedWords.length - 1);
       setUsedInitialIndex(true);
     }
-    setState((s) => ({ ...s, syncedWords, currentIndex: idx }));
+    // Stop playback when data changes (chapter/reciter switch)
+    audioRef.current?.pause();
+    setState((s) => ({ ...s, syncedWords, currentIndex: idx, isPlaying: false }));
   }
 
   // Animation loop: track current word based on audio currentTime
@@ -102,6 +107,16 @@ export function useAudioSync(
       if (!audio) return;
 
       const currentMs = audio.currentTime * 1000;
+
+      // Stop at end of last synced word when "stop after selection" is on
+      if (stopAfterRef.current) {
+        const lastSeg = state.syncedWords[state.syncedWords.length - 1]?.segment;
+        if (lastSeg && currentMs >= lastSeg[2]) {
+          audio.pause();
+          setState((s) => ({ ...s, isPlaying: false }));
+          return;
+        }
+      }
 
       setState((s) => {
         let idx = s.currentIndex;
@@ -122,25 +137,38 @@ export function useAudioSync(
     return () => cancelAnimationFrame(animFrameRef.current);
   }, [state.isPlaying, state.syncedWords]);
 
-  const play = useCallback(() => {
-    if (!audioFile) return;
-
-    if (!audioRef.current) {
-      audioRef.current = new Audio(audioFile.audio_url);
+  // Ensure audio element exists (lazy-created, replaced on URL change)
+  const ensureAudio = useCallback(() => {
+    if (!audioFile) return null;
+    if (audioRef.current && audioRef.current.src === audioFile.audio_url) {
+      return audioRef.current;
     }
+    // New audio file — replace element
+    audioRef.current?.pause();
+    const audio = new Audio(audioFile.audio_url);
+    audio.addEventListener("ended", () => {
+      setState((s) => ({ ...s, isPlaying: false }));
+    });
+    audioRef.current = audio;
+    return audio;
+  }, [audioFile]);
+
+  const play = useCallback(() => {
+    const audio = ensureAudio();
+    if (!audio) return;
 
     // Always seek to the displayed word's start time before playing.
     // Prevents desync when browser resets audio position after idle/background.
     const currentSW = state.syncedWords[state.currentIndex];
     if (currentSW) {
       const [, startMs] = currentSW.segment;
-      audioRef.current.currentTime = startMs / 1000;
+      audio.currentTime = startMs / 1000;
     }
 
-    audioRef.current.playbackRate = state.speed;
-    audioRef.current.play();
+    audio.playbackRate = state.speed;
+    audio.play();
     setState((s) => ({ ...s, isPlaying: true }));
-  }, [audioFile, state.speed, state.syncedWords, state.currentIndex]);
+  }, [ensureAudio, state.speed, state.syncedWords, state.currentIndex]);
 
   const pause = useCallback(() => {
     audioRef.current?.pause();
@@ -149,12 +177,15 @@ export function useAudioSync(
 
   const seekToWord = useCallback(
     (index: number) => {
-      if (!audioRef.current || index < 0 || index >= state.syncedWords.length) return;
-      const [, startMs] = state.syncedWords[index].segment;
-      audioRef.current.currentTime = startMs / 1000;
+      if (index < 0 || index >= state.syncedWords.length) return;
+      const audio = ensureAudio();
+      if (audio) {
+        const [, startMs] = state.syncedWords[index].segment;
+        audio.currentTime = startMs / 1000;
+      }
       setState((s) => ({ ...s, currentIndex: index }));
     },
-    [state.syncedWords]
+    [state.syncedWords, ensureAudio]
   );
 
   const nextWord = useCallback(() => {

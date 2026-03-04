@@ -16,6 +16,7 @@ Instead of highlighting words in a sentence, it shows only the current word — 
 - **Surah & ayah selectors** — pick any surah, jump to any verse
 - **Multiple reciters** — Mishari Al-Afasy (default), Al-Husary (Muallim), Al-Husary
 - **Speed control** — 0.5x to 1.5x playback
+- **Stop after surah** — pauses at end of surah (on by default); uncheck to let audio continue
 - **Immersive mode** — hides all UI except the current word during playback, enlarged text
 - **Auto-resume** — remembers your chapter, reciter, and word position across sessions
 - **Copyable text** — selecting/copying the displayed word gives proper Arabic (not PUA glyphs)

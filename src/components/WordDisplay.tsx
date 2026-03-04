@@ -5,13 +5,14 @@ import { loadQcfFont, preloadQcfFont, qcfFontFamily } from "../utils/qcfFont";
 
 interface Props {
   currentWord: SyncedWord | null;
+  showVerseRef: boolean;
   showTransliteration: boolean;
   showTranslation: boolean;
   tajweedEnabled: boolean;
   resolvedTheme: ResolvedTheme;
 }
 
-export function WordDisplay({ currentWord, showTransliteration, showTranslation, tajweedEnabled, resolvedTheme }: Props) {
+export function WordDisplay({ currentWord, showVerseRef, showTransliteration, showTranslation, tajweedEnabled, resolvedTheme }: Props) {
   const [fontReady, setFontReady] = useState(false);
   const [prevPage, setPrevPage] = useState<number | null>(null);
   const [prevVariant, setPrevVariant] = useState<FontVariant>("v4");
@@ -56,7 +57,7 @@ export function WordDisplay({ currentWord, showTransliteration, showTranslation,
 
   return (
     <div className="word-display">
-      <div className="word-display__verse-ref">{verseKey}</div>
+      {showVerseRef && <div className="word-display__verse-ref">{verseKey}</div>}
 
       <div className="word-display__arabic" dir="rtl" lang="ar" onCopy={handleCopy}>
         {fontReady ? (
