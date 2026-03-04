@@ -4,6 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Quran Word Trainer</title>
+    <script>
+      (function () {
+        var t;
+        try { t = localStorage.getItem("qwt-theme"); } catch (e) {}
+        var r = t === "light" || t === "dark" ? t
+          : window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+        document.documentElement.setAttribute("data-theme", r);
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

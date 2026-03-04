@@ -8,11 +8,15 @@ Instead of highlighting words in a sentence, it shows only the current word — 
 
 - **RSVP word display** — one word at a time, large Arabic text, centered
 - **Tajweed rendering** — QCF V4 COLRv1 color fonts with per-page dynamic loading
+- **Tajweed toggle** — switch off tajweed colors while keeping QCF glyph quality (V2 fonts)
+- **Light/dark theme** — auto (follows system), light, or dark; persisted in localStorage, no FOUC
 - **Audio-synced** — words flash in time with reciter audio (word-level timing)
+- **Surah & ayah selectors** — pick any surah, jump to any verse
 - **Multiple reciters** — Mishari Al-Afasy (default), Al-Husary (Muallim), Al-Husary
 - **Speed control** — 0.5x to 1.5x playback
 - **Immersive mode** — hides all UI except the current word during playback, enlarged text
 - **Auto-resume** — remembers your chapter, reciter, and word position across sessions
+- **Copyable text** — selecting/copying the displayed word gives proper Arabic (not PUA glyphs)
 - **Mobile-responsive** — touch-friendly layout for phones and tablets
 - **Transliteration & translation** — optional overlays toggled via checkboxes
 

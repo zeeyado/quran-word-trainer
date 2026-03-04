@@ -43,17 +43,29 @@ export function useAudioSync(
       const verse = verses.find((v) => v.verse_key === ts.verse_key);
       if (!verse) continue;
 
-      for (const segment of ts.segments) {
-        // Skip incomplete segments (some reciters have [position] without times)
-        if (segment.length < 3) continue;
+      const segs = ts.segments.filter((s) => s.length >= 3);
+      let maxPos = 0;
 
-        const [wordPos] = segment;
+      for (let i = 0; i < segs.length; i++) {
+        const [wordPos] = segs[i];
+
+        // Skip isolated backward jumps (likely forced-alignment errors).
+        // A backward segment is "isolated" if the next segment jumps forward
+        // past the previous max — indicating a single glitch, not a sustained
+        // reciter repetition (which would continue forward from the lower pos).
+        if (wordPos < maxPos) {
+          const nextPos = i + 1 < segs.length ? segs[i + 1][0] : null;
+          if (nextPos === null || nextPos > maxPos) continue;
+        }
+
+        maxPos = Math.max(maxPos, wordPos);
+
         const word = verse.words.find(
           (w) => w.position === wordPos && w.char_type_name === "word"
         );
         if (!word) continue;
 
-        words.push({ word, verseKey: ts.verse_key, segment });
+        words.push({ word, verseKey: ts.verse_key, segment: segs[i] });
       }
     }
 
@@ -117,10 +129,18 @@ export function useAudioSync(
       audioRef.current = new Audio(audioFile.audio_url);
     }
 
+    // Always seek to the displayed word's start time before playing.
+    // Prevents desync when browser resets audio position after idle/background.
+    const currentSW = state.syncedWords[state.currentIndex];
+    if (currentSW) {
+      const [, startMs] = currentSW.segment;
+      audioRef.current.currentTime = startMs / 1000;
+    }
+
     audioRef.current.playbackRate = state.speed;
     audioRef.current.play();
     setState((s) => ({ ...s, isPlaying: true }));
-  }, [audioFile, state.speed]);
+  }, [audioFile, state.speed, state.syncedWords, state.currentIndex]);
 
   const pause = useCallback(() => {
     audioRef.current?.pause();

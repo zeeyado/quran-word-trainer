@@ -5,10 +5,12 @@ import { useWordData } from "./hooks/useWordData";
 import { useChapterAudio } from "./hooks/useChapterAudio";
 import { useAudioSync } from "./hooks/useAudioSync";
 import { SurahSelector } from "./components/SurahSelector";
+import { AyahSelector } from "./components/AyahSelector";
 import { ReciterSelector } from "./components/ReciterSelector";
 import { WordDisplay } from "./components/WordDisplay";
 import { PlayerControls } from "./components/PlayerControls";
 import { SettingsPanel } from "./components/SettingsPanel";
+import { useTheme } from "./hooks/useTheme";
 
 const STORAGE_KEY = "qwt-state";
 
@@ -36,6 +38,15 @@ export default function App() {
   const [showTransliteration, setShowTransliteration] = useState(false);
   const [showTranslation, setShowTranslation] = useState(false);
   const [immersiveEnabled, setImmersiveEnabled] = useState(false);
+  const [tajweedEnabled, setTajweedEnabled] = useState(() => {
+    try { return localStorage.getItem("qwt-tajweed") !== "false"; }
+    catch { return true; }
+  });
+  const { preference: themePreference, resolved: resolvedTheme, setTheme } = useTheme();
+
+  useEffect(() => {
+    try { localStorage.setItem("qwt-tajweed", String(tajweedEnabled)); } catch { /* ignore */ }
+  }, [tajweedEnabled]);
 
   const savedWordIndex = saved?.wordIndex ?? 0;
 
@@ -56,8 +67,21 @@ export default function App() {
     pause,
     nextWord,
     prevWord,
+    seekToWord,
     setSpeed,
   } = useAudioSync(audioFile, verses, savedWordIndex);
+
+  const currentChapter = chapters.find((ch) => ch.id === selectedChapter);
+  const versesCount = currentChapter?.verses_count ?? 0;
+  const currentAyah = currentWord
+    ? Number(currentWord.verseKey.split(":")[1])
+    : 1;
+
+  const handleAyahSelect = (ayah: number) => {
+    const targetKey = `${selectedChapter}:${ayah}`;
+    const idx = syncedWords.findIndex((sw) => sw.verseKey === targetKey);
+    if (idx >= 0) seekToWord(idx);
+  };
 
   // Keep ref in sync for use in event listeners
   const stateRef = useRef({ chapter: selectedChapter, reciter: selectedReciter, wordIndex: currentIndex });
@@ -93,6 +117,13 @@ export default function App() {
             selectedChapter={selectedChapter}
             onSelect={setSelectedChapter}
           />
+          {versesCount > 0 && (
+            <AyahSelector
+              versesCount={versesCount}
+              currentAyah={currentAyah}
+              onSelect={handleAyahSelect}
+            />
+          )}
           <ReciterSelector
             reciters={RECITERS}
             selectedId={selectedReciter}
@@ -112,6 +143,8 @@ export default function App() {
             currentWord={currentWord}
             showTransliteration={showTransliteration}
             showTranslation={showTranslation}
+            tajweedEnabled={tajweedEnabled}
+            resolvedTheme={resolvedTheme}
           />
         )}
       </main>
@@ -133,9 +166,13 @@ export default function App() {
           showTransliteration={showTransliteration}
           showTranslation={showTranslation}
           immersiveEnabled={immersiveEnabled}
+          tajweedEnabled={tajweedEnabled}
+          themePreference={themePreference}
           onToggleTransliteration={() => setShowTransliteration((v) => !v)}
           onToggleTranslation={() => setShowTranslation((v) => !v)}
           onToggleImmersive={() => setImmersiveEnabled((v) => !v)}
+          onToggleTajweed={() => setTajweedEnabled((v) => !v)}
+          onThemeChange={setTheme}
         />
       </footer>
     </div>
