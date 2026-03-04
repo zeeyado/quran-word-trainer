@@ -27,7 +27,8 @@ interface AudioSyncState {
  */
 export function useAudioSync(
   audioFile: ChapterAudioFile | null,
-  verses: Verse[]
+  verses: Verse[],
+  initialIndex?: number
 ) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const animFrameRef = useRef<number>(0);
@@ -61,6 +62,7 @@ export function useAudioSync(
 
   // Reset currentIndex when synced words change
   const [prevSyncedWords, setPrevSyncedWords] = useState(syncedWords);
+  const [usedInitialIndex, setUsedInitialIndex] = useState(false);
 
   const [state, setState] = useState<AudioSyncState>({
     syncedWords: [],
@@ -71,7 +73,12 @@ export function useAudioSync(
 
   if (syncedWords !== prevSyncedWords) {
     setPrevSyncedWords(syncedWords);
-    setState((s) => ({ ...s, syncedWords, currentIndex: 0 }));
+    let idx = 0;
+    if (!usedInitialIndex && initialIndex != null && syncedWords.length > 0) {
+      idx = Math.min(initialIndex, syncedWords.length - 1);
+      setUsedInitialIndex(true);
+    }
+    setState((s) => ({ ...s, syncedWords, currentIndex: idx }));
   }
 
   // Animation loop: track current word based on audio currentTime

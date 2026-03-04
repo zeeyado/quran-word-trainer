@@ -11,7 +11,9 @@ Instead of highlighting words in a sentence, it shows only the current word — 
 - **Audio-synced** — words flash in time with reciter audio (word-level timing)
 - **Multiple reciters** — Mishari Al-Afasy (default), Al-Husary (Muallim), Al-Husary
 - **Speed control** — 0.5x to 1.5x playback
-- **Immersive mode** — hides all UI except the current word during playback
+- **Immersive mode** — hides all UI except the current word during playback, enlarged text
+- **Auto-resume** — remembers your chapter, reciter, and word position across sessions
+- **Mobile-responsive** — touch-friendly layout for phones and tablets
 - **Transliteration & translation** — optional overlays toggled via checkboxes
 
 ## Running

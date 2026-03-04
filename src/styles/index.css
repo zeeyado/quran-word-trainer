@@ -69,6 +69,10 @@ body {
 }
 
 /* Selectors */
+select, button, label {
+  touch-action: manipulation;
+}
+
 select {
   padding: 0.5rem 1rem;
   border-radius: 6px;
@@ -77,6 +81,7 @@ select {
   color: var(--color-text);
   font-size: 0.95rem;
   cursor: pointer;
+  min-height: 44px;
 }
 
 /* Word display */
@@ -221,4 +226,100 @@ select {
 .app--immersive .app__main {
   padding: 0;
   cursor: pointer;
+}
+
+.app--immersive .word-display__arabic {
+  font-size: 8rem;
+}
+
+@media (max-width: 600px) {
+  .app--immersive .word-display__arabic {
+    font-size: 4.5rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .app--immersive .word-display__arabic {
+    font-size: 3.5rem;
+  }
+}
+
+/* Mobile responsive */
+@media (max-width: 600px) {
+  .app {
+    padding: 0.5rem;
+  }
+
+  .app__header {
+    padding: 0.5rem 0;
+  }
+
+  .app__title {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .app__selectors {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .app__selectors select {
+    width: 100%;
+  }
+
+  .app__main {
+    padding: 1rem 0;
+  }
+
+  .word-display__arabic {
+    font-size: 3rem;
+    padding: 0.5rem;
+  }
+
+  .word-display__transliteration {
+    font-size: 1.1rem;
+  }
+
+  .word-display__translation {
+    font-size: 0.95rem;
+  }
+
+  .player-controls__transport button {
+    width: 2.75rem;
+    height: 2.75rem;
+    font-size: 1.3rem;
+  }
+
+  .player-controls__play {
+    width: 3.25rem !important;
+    height: 3.25rem !important;
+    font-size: 1.6rem !important;
+  }
+
+  .player-controls__speed {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .player-controls__speed button {
+    padding: 0.35rem 0.65rem;
+    font-size: 0.75rem;
+  }
+
+  .settings-panel {
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .settings-panel label {
+    font-size: 0.8rem;
+  }
+}
+
+/* Small phones */
+@media (max-width: 380px) {
+  .word-display__arabic {
+    font-size: 2.2rem;
+  }
 }
