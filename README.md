@@ -1,5 +1,7 @@
 # Quran Word Trainer
 
+**[Try it live](https://zeeyado.github.io/quran-word-trainer/)**
+
 A web app that helps users connect Arabic letter shapes to sounds by flashing individual Quranic words synchronized with reciter audio.
 
 Instead of highlighting words in a sentence, it shows only the current word — large and centered — while the reciter's audio for that word plays. Like speed-reading, but for learning to read Arabic through the Quran.
