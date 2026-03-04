@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { SyncedWord } from "../hooks/useAudioSync";
 import type { FontVariant, ResolvedTheme } from "../utils/qcfFont";
 import { loadQcfFont, preloadQcfFont, qcfFontFamily } from "../utils/qcfFont";
@@ -49,23 +49,22 @@ export function WordDisplay({ currentWord, showTransliteration, showTranslation,
 
   const { word, verseKey } = currentWord;
 
+  const handleCopy = useCallback((e: React.ClipboardEvent) => {
+    e.preventDefault();
+    e.clipboardData.setData("text/plain", word.text_uthmani);
+  }, [word.text_uthmani]);
+
   return (
     <div className="word-display">
       <div className="word-display__verse-ref">{verseKey}</div>
 
-      <div className="word-display__arabic" dir="rtl" lang="ar">
+      <div className="word-display__arabic" dir="rtl" lang="ar" onCopy={handleCopy}>
         {fontReady ? (
-          <>
-            <span
-              aria-hidden="true"
-              style={{ fontFamily: `"${qcfFontFamily(pageNumber!, variant, resolvedTheme)}"` }}
-            >
-              {word.code_v2}
-            </span>
-            <span className="word-display__copy-text">
-              {word.text_uthmani}
-            </span>
-          </>
+          <span
+            style={{ fontFamily: `"${qcfFontFamily(pageNumber!, variant, resolvedTheme)}"` }}
+          >
+            {word.code_v2}
+          </span>
         ) : (
           word.text_uthmani
         )}

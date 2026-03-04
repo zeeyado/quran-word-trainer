@@ -131,24 +131,6 @@ select {
   position: relative;
 }
 
-/* Hidden layer that provides copyable real Arabic text */
-.word-display__copy-text {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  font-size: inherit;
-  line-height: inherit;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  user-select: text;
-  -webkit-user-select: text;
-}
-
-.word-display__arabic [aria-hidden="true"] {
-  user-select: none;
-  -webkit-user-select: none;
-}
 
 [data-theme="light"] .word-display__arabic {
   font-palette: --Light;
