@@ -1,0 +1,224 @@
+/* Quran Word Trainer — base styles */
+
+:root {
+  --color-bg: #1a1a2e;
+  --color-surface: #16213e;
+  --color-primary: #e2b714;
+  --color-text: #e0e0e0;
+  --color-text-dim: #888;
+  --color-arabic: #f5f5f5;
+  --font-arabic: "KFGQPC Uthmanic Script HAFS", "Scheherazade New", "Amiri", serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  min-height: 100vh;
+}
+
+/* App layout */
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.app__header {
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.app__title {
+  font-size: 1.5rem;
+  color: var(--color-primary);
+  margin-bottom: 1rem;
+}
+
+.app__selectors {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.app__main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 0;
+}
+
+.app__loading {
+  color: var(--color-text-dim);
+  font-size: 1.2rem;
+}
+
+.app__footer {
+  padding: 1rem 0;
+}
+
+/* Selectors */
+select {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border: 1px solid #333;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+/* Word display */
+.word-display {
+  text-align: center;
+  width: 100%;
+}
+
+.word-display--empty .word-display__placeholder {
+  color: var(--color-text-dim);
+  font-size: 1.2rem;
+}
+
+.word-display__verse-ref {
+  font-size: 0.85rem;
+  color: var(--color-text-dim);
+  margin-bottom: 1rem;
+}
+
+.word-display__arabic {
+  font-family: var(--font-arabic);
+  font-size: 5rem;
+  line-height: 1.6;
+  color: var(--color-arabic);
+  padding: 1rem;
+  font-palette: dark-colored;
+  transition: opacity 0.15s ease;
+}
+
+.word-display__transliteration {
+  font-size: 1.3rem;
+  color: var(--color-primary);
+  margin-top: 0.75rem;
+  font-style: italic;
+}
+
+.word-display__translation {
+  font-size: 1.1rem;
+  color: var(--color-text-dim);
+  margin-top: 0.5rem;
+}
+
+/* Player controls */
+.player-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.player-controls__transport {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.player-controls__transport button {
+  background: var(--color-surface);
+  border: 1px solid #333;
+  color: var(--color-text);
+  font-size: 1.5rem;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.player-controls__transport button:hover:not(:disabled) {
+  background: #2a2a4e;
+}
+
+.player-controls__transport button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.player-controls__play {
+  width: 3.5rem !important;
+  height: 3.5rem !important;
+  font-size: 1.8rem !important;
+  border-color: var(--color-primary) !important;
+}
+
+.player-controls__speed {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.player-controls__speed button {
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  border: 1px solid #333;
+  background: var(--color-surface);
+  color: var(--color-text-dim);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.player-controls__speed button.active {
+  background: var(--color-primary);
+  color: #000;
+  border-color: var(--color-primary);
+}
+
+.player-controls__progress {
+  font-size: 0.85rem;
+  color: var(--color-text-dim);
+}
+
+/* Settings panel */
+.settings-panel {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.settings-panel label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  color: var(--color-text-dim);
+  cursor: pointer;
+}
+
+.settings-panel input[type="checkbox"] {
+  accent-color: var(--color-primary);
+}
+
+/* Immersive mode — hide everything except word display during playback */
+.app--immersive .app__header,
+.app--immersive .app__footer {
+  display: none;
+}
+
+.app--immersive .app__main {
+  padding: 0;
+  cursor: pointer;
+}
