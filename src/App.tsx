@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { RECITERS } from "./api/quran";
 import { useChapters } from "./hooks/useChapters";
 import { useWordData } from "./hooks/useWordData";
@@ -39,7 +39,8 @@ export default function App() {
   const [showTransliteration, setShowTransliteration] = useState(false);
   const [showTranslation, setShowTranslation] = useState(false);
   const [stopAfterSelection, setStopAfterSelection] = useState(true);
-  const [immersiveEnabled, setImmersiveEnabled] = useState(false);
+  const [immersiveMode, setImmersiveMode] = useState(false);
+  const [controlsVisible, setControlsVisible] = useState(false);
   const [tajweedEnabled, setTajweedEnabled] = useState(() => {
     try { return localStorage.getItem("qwt-tajweed") !== "false"; }
     catch { return true; }
@@ -49,6 +50,10 @@ export default function App() {
   useEffect(() => {
     try { localStorage.setItem("qwt-tajweed", String(tajweedEnabled)); } catch { /* ignore */ }
   }, [tajweedEnabled]);
+
+  const handlePlaybackEnd = useCallback(() => {
+    setImmersiveMode(false);
+  }, []);
 
   const savedWordIndex = saved?.wordIndex ?? 0;
 
@@ -71,7 +76,7 @@ export default function App() {
     prevWord,
     seekToWord,
     setSpeed,
-  } = useAudioSync(audioFile, verses, savedWordIndex, stopAfterSelection);
+  } = useAudioSync(audioFile, verses, savedWordIndex, stopAfterSelection, handlePlaybackEnd);
 
   const currentChapter = chapters.find((ch) => ch.id === selectedChapter);
   const versesCount = currentChapter?.verses_count ?? 0;
@@ -107,81 +112,163 @@ export default function App() {
   }, []);
 
   const isLoading = chaptersLoading || versesLoading || audioLoading;
-  const immersiveActive = immersiveEnabled && isPlaying;
+
+  const enterImmersive = useCallback(() => {
+    setImmersiveMode(true);
+    setControlsVisible(false);
+  }, []);
+
+  const exitImmersive = useCallback(() => {
+    setImmersiveMode(false);
+  }, []);
 
   return (
-    <div className={`app${immersiveActive ? " app--immersive" : ""}`}>
-      <header className="app__header">
-        <h1 className="app__title">Quran Word Trainer</h1>
-        <div className="app__selectors">
-          <SurahSelector
-            chapters={chapters}
-            selectedChapter={selectedChapter}
-            onSelect={setSelectedChapter}
-          />
-          {versesCount > 0 && (
-            <AyahSelector
-              versesCount={versesCount}
-              currentAyah={currentAyah}
-              onSelect={handleAyahSelect}
+    <>
+      <div className="app">
+        <header className="app__header">
+          <h1 className="app__title">Quran Word Trainer</h1>
+          <div className="app__selectors">
+            <SurahSelector
+              chapters={chapters}
+              selectedChapter={selectedChapter}
+              onSelect={setSelectedChapter}
+            />
+            {versesCount > 0 && (
+              <AyahSelector
+                versesCount={versesCount}
+                currentAyah={currentAyah}
+                onSelect={handleAyahSelect}
+              />
+            )}
+            <ReciterSelector
+              reciters={RECITERS}
+              selectedId={selectedReciter}
+              onSelect={setSelectedReciter}
+            />
+          </div>
+        </header>
+
+        <main className="app__main">
+          {isLoading ? (
+            <div className="app__loading">Loading...</div>
+          ) : (
+            <WordDisplay
+              currentWord={currentWord}
+              showVerseRef={showVerseRef}
+              showTransliteration={showTransliteration}
+              showTranslation={showTranslation}
+              tajweedEnabled={tajweedEnabled}
+              resolvedTheme={resolvedTheme}
             />
           )}
-          <ReciterSelector
-            reciters={RECITERS}
-            selectedId={selectedReciter}
-            onSelect={setSelectedReciter}
-          />
-        </div>
-      </header>
+        </main>
 
-      <main
-        className="app__main"
-        onClick={immersiveActive ? () => setImmersiveEnabled(false) : undefined}
-      >
-        {isLoading ? (
-          <div className="app__loading">Loading...</div>
-        ) : (
-          <WordDisplay
-            currentWord={currentWord}
+        <footer className="app__footer">
+          <PlayerControls
+            isPlaying={isPlaying}
+            speed={speed}
+            currentIndex={currentIndex}
+            totalWords={syncedWords.length}
+            onPlay={play}
+            onPause={pause}
+            onPrev={prevWord}
+            onNext={nextWord}
+            onSpeedChange={setSpeed}
+            onEnterImmersive={enterImmersive}
+          />
+
+          <SettingsPanel
             showVerseRef={showVerseRef}
             showTransliteration={showTransliteration}
             showTranslation={showTranslation}
+            stopAfterSelection={stopAfterSelection}
             tajweedEnabled={tajweedEnabled}
-            resolvedTheme={resolvedTheme}
+            themePreference={themePreference}
+            onToggleVerseRef={() => setShowVerseRef((v) => !v)}
+            onToggleTransliteration={() => setShowTransliteration((v) => !v)}
+            onToggleTranslation={() => setShowTranslation((v) => !v)}
+            onToggleStopAfter={() => setStopAfterSelection((v) => !v)}
+            onToggleTajweed={() => setTajweedEnabled((v) => !v)}
+            onThemeChange={setTheme}
           />
-        )}
-      </main>
+        </footer>
+      </div>
 
-      <footer className="app__footer">
-        <PlayerControls
-          isPlaying={isPlaying}
-          speed={speed}
-          currentIndex={currentIndex}
-          totalWords={syncedWords.length}
-          onPlay={play}
-          onPause={pause}
-          onPrev={prevWord}
-          onNext={nextWord}
-          onSpeedChange={setSpeed}
-        />
+      {immersiveMode && (
+        <div
+          className="immersive"
+          onClick={() => setControlsVisible((v) => !v)}
+        >
+          <div className="immersive__word">
+            <WordDisplay
+              currentWord={currentWord}
+              showVerseRef={showVerseRef}
+              showTransliteration={showTransliteration}
+              showTranslation={showTranslation}
+              tajweedEnabled={tajweedEnabled}
+              resolvedTheme={resolvedTheme}
+            />
+          </div>
 
-        <SettingsPanel
-          showVerseRef={showVerseRef}
-          showTransliteration={showTransliteration}
-          showTranslation={showTranslation}
-          stopAfterSelection={stopAfterSelection}
-          immersiveEnabled={immersiveEnabled}
-          tajweedEnabled={tajweedEnabled}
-          themePreference={themePreference}
-          onToggleVerseRef={() => setShowVerseRef((v) => !v)}
-          onToggleTransliteration={() => setShowTransliteration((v) => !v)}
-          onToggleTranslation={() => setShowTranslation((v) => !v)}
-          onToggleStopAfter={() => setStopAfterSelection((v) => !v)}
-          onToggleImmersive={() => setImmersiveEnabled((v) => !v)}
-          onToggleTajweed={() => setTajweedEnabled((v) => !v)}
-          onThemeChange={setTheme}
-        />
-      </footer>
-    </div>
+          {controlsVisible && (
+            <div
+              className="immersive__controls"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="immersive__transport">
+                <button onClick={prevWord} disabled={currentIndex <= 0}>
+                  &#x23EE;
+                </button>
+                <button
+                  onClick={isPlaying ? pause : play}
+                  className="immersive__play"
+                >
+                  {isPlaying ? "\u23F8" : "\u25B6"}
+                </button>
+                <button onClick={nextWord} disabled={currentIndex >= syncedWords.length - 1}>
+                  &#x23ED;
+                </button>
+              </div>
+
+              <div className="immersive__speed">
+                <input
+                  type="range"
+                  min={0.25}
+                  max={2}
+                  step={0.25}
+                  value={speed}
+                  onChange={(e) => setSpeed(Number(e.target.value))}
+                />
+                <span className="immersive__speed-label">{speed}x</span>
+              </div>
+
+              <div className="immersive__bottom">
+                <span className="immersive__progress">
+                  {syncedWords.length > 0 ? `${currentIndex + 1} / ${syncedWords.length}` : "\u2014"}
+                </span>
+                <button onClick={exitImmersive} className="immersive__toggle" title="Exit focus mode">
+                  &#x26F6;
+                </button>
+              </div>
+
+              <SettingsPanel
+                showVerseRef={showVerseRef}
+                showTransliteration={showTransliteration}
+                showTranslation={showTranslation}
+                stopAfterSelection={stopAfterSelection}
+                tajweedEnabled={tajweedEnabled}
+                themePreference={themePreference}
+                onToggleVerseRef={() => setShowVerseRef((v) => !v)}
+                onToggleTransliteration={() => setShowTransliteration((v) => !v)}
+                onToggleTranslation={() => setShowTranslation((v) => !v)}
+                onToggleStopAfter={() => setStopAfterSelection((v) => !v)}
+                onToggleTajweed={() => setTajweedEnabled((v) => !v)}
+                onThemeChange={setTheme}
+              />
+            </div>
+          )}
+        </div>
+      )}
+    </>
   );
 }

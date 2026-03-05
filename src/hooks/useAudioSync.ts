@@ -29,12 +29,15 @@ export function useAudioSync(
   audioFile: ChapterAudioFile | null,
   verses: Verse[],
   initialIndex?: number,
-  stopAfterSelection?: boolean
+  stopAfterSelection?: boolean,
+  onPlaybackEnd?: () => void
 ) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const animFrameRef = useRef<number>(0);
   const stopAfterRef = useRef(stopAfterSelection ?? true);
   stopAfterRef.current = stopAfterSelection ?? true;
+  const onPlaybackEndRef = useRef(onPlaybackEnd);
+  onPlaybackEndRef.current = onPlaybackEnd;
 
   // Build the flat synced word list (pure derivation from props)
   const syncedWords = useMemo(() => {
@@ -114,6 +117,7 @@ export function useAudioSync(
         if (lastSeg && currentMs >= lastSeg[2]) {
           audio.pause();
           setState((s) => ({ ...s, isPlaying: false }));
+          onPlaybackEndRef.current?.();
           return;
         }
       }
@@ -148,6 +152,7 @@ export function useAudioSync(
     const audio = new Audio(audioFile.audio_url);
     audio.addEventListener("ended", () => {
       setState((s) => ({ ...s, isPlaying: false }));
+      onPlaybackEndRef.current?.();
     });
     audioRef.current = audio;
     return audio;

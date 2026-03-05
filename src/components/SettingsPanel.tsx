@@ -5,14 +5,12 @@ interface Props {
   showTransliteration: boolean;
   showTranslation: boolean;
   stopAfterSelection: boolean;
-  immersiveEnabled: boolean;
   tajweedEnabled: boolean;
   themePreference: ThemePreference;
   onToggleVerseRef: () => void;
   onToggleTransliteration: () => void;
   onToggleTranslation: () => void;
   onToggleStopAfter: () => void;
-  onToggleImmersive: () => void;
   onToggleTajweed: () => void;
   onThemeChange: (theme: ThemePreference) => void;
 }
@@ -28,14 +26,12 @@ export function SettingsPanel({
   showTransliteration,
   showTranslation,
   stopAfterSelection,
-  immersiveEnabled,
   tajweedEnabled,
   themePreference,
   onToggleVerseRef,
   onToggleTransliteration,
   onToggleTranslation,
   onToggleStopAfter,
-  onToggleImmersive,
   onToggleTajweed,
   onThemeChange,
 }: Props) {
@@ -84,15 +80,6 @@ export function SettingsPanel({
           onChange={onToggleTajweed}
         />
         Tajweed
-      </label>
-
-      <label>
-        <input
-          type="checkbox"
-          checked={immersiveEnabled}
-          onChange={onToggleImmersive}
-        />
-        Immersive
       </label>
 
       <div className="settings-panel__theme">

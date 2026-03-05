@@ -8,9 +8,8 @@ interface Props {
   onPrev: () => void;
   onNext: () => void;
   onSpeedChange: (speed: number) => void;
+  onEnterImmersive: () => void;
 }
-
-const SPEED_OPTIONS = [0.5, 0.75, 1, 1.25, 1.5];
 
 export function PlayerControls({
   isPlaying,
@@ -22,6 +21,7 @@ export function PlayerControls({
   onPrev,
   onNext,
   onSpeedChange,
+  onEnterImmersive,
 }: Props) {
   return (
     <div className="player-controls">
@@ -40,19 +40,24 @@ export function PlayerControls({
       </div>
 
       <div className="player-controls__speed">
-        {SPEED_OPTIONS.map((s) => (
-          <button
-            key={s}
-            onClick={() => onSpeedChange(s)}
-            className={speed === s ? "active" : ""}
-          >
-            {s}x
-          </button>
-        ))}
+        <input
+          type="range"
+          min={0.25}
+          max={2}
+          step={0.25}
+          value={speed}
+          onChange={(e) => onSpeedChange(Number(e.target.value))}
+        />
+        <span className="player-controls__speed-label">{speed}x</span>
       </div>
 
-      <div className="player-controls__progress">
-        {totalWords > 0 ? `${currentIndex + 1} / ${totalWords}` : "—"}
+      <div className="player-controls__bottom">
+        <span className="player-controls__progress">
+          {totalWords > 0 ? `${currentIndex + 1} / ${totalWords}` : "\u2014"}
+        </span>
+        <button onClick={onEnterImmersive} className="player-controls__immersive" title="Focus mode">
+          &#x26F6;
+        </button>
       </div>
     </div>
   );

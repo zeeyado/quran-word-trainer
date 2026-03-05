@@ -99,6 +99,7 @@ body {
 
 .app__footer {
   padding: 1rem 0;
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
   flex-shrink: 0;
 }
 
@@ -211,29 +212,50 @@ select {
 
 .player-controls__speed {
   display: flex;
+  align-items: center;
   gap: 0.5rem;
 }
 
-.player-controls__speed button {
-  padding: 0.25rem 0.75rem;
-  border-radius: 4px;
-  border: 1px solid var(--color-border);
-  background: var(--color-surface);
-  color: var(--color-text-dim);
-  font-size: 0.8rem;
-  cursor: pointer;
-  transition: all 0.15s;
+.player-controls__speed input[type="range"] {
+  width: 120px;
+  accent-color: var(--color-primary);
 }
 
-.player-controls__speed button.active {
-  background: var(--color-primary);
-  color: var(--color-active-text);
-  border-color: var(--color-primary);
+.player-controls__speed-label {
+  font-size: 0.85rem;
+  color: var(--color-text-dim);
+  min-width: 2.5rem;
+  text-align: center;
+}
+
+.player-controls__bottom {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .player-controls__progress {
   font-size: 0.85rem;
   color: var(--color-text-dim);
+}
+
+.player-controls__immersive {
+  background: none;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-dim);
+  font-size: 0.9rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s;
+}
+
+.player-controls__immersive:hover {
+  color: var(--color-text);
 }
 
 /* Settings panel */
@@ -280,31 +302,129 @@ select {
   border-color: var(--color-primary);
 }
 
-/* Immersive mode — hide everything except word display during playback */
-.app--immersive .app__header,
-.app--immersive .app__footer {
-  display: none;
-}
-
-.app--immersive .app__main {
-  padding: 0;
+/* Immersive overlay — fullscreen focus mode */
+.immersive {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: var(--color-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
 }
 
-.app--immersive .word-display__arabic {
+.immersive__word {
+  pointer-events: none;
+}
+
+.immersive__word .word-display__arabic {
   font-size: 8rem;
 }
 
-@media (max-width: 600px) {
-  .app--immersive .word-display__arabic {
-    font-size: 4.5rem;
-  }
+.immersive__controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+  padding: 1.25rem;
+  padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: default;
 }
 
-@media (max-width: 380px) {
-  .app--immersive .word-display__arabic {
-    font-size: 3.5rem;
-  }
+.immersive__transport {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.immersive__transport button {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  font-size: 1.5rem;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.immersive__transport button:hover:not(:disabled) {
+  background: var(--color-surface-hover);
+}
+
+.immersive__transport button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.immersive__play {
+  width: 3.5rem !important;
+  height: 3.5rem !important;
+  font-size: 1.8rem !important;
+  border-color: var(--color-primary) !important;
+}
+
+.immersive__speed {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.immersive__speed input[type="range"] {
+  width: 120px;
+  accent-color: var(--color-primary);
+}
+
+.immersive__speed-label {
+  font-size: 0.85rem;
+  color: var(--color-text-dim);
+  min-width: 2.5rem;
+  text-align: center;
+}
+
+.immersive__bottom {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.immersive__progress {
+  font-size: 0.85rem;
+  color: var(--color-text-dim);
+}
+
+.immersive__toggle {
+  background: none;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-dim);
+  font-size: 0.9rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s;
+}
+
+.immersive__toggle:hover {
+  color: var(--color-text);
+}
+
+.immersive__controls .settings-panel {
+  margin-top: 0;
 }
 
 /* Mobile responsive */
@@ -360,16 +480,6 @@ select {
     font-size: 1.6rem !important;
   }
 
-  .player-controls__speed {
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  .player-controls__speed button {
-    padding: 0.35rem 0.65rem;
-    font-size: 0.75rem;
-  }
-
   .settings-panel {
     gap: 1rem;
   }
@@ -383,5 +493,47 @@ select {
 @media (max-width: 380px) {
   .word-display__arabic {
     font-size: 2.2rem;
+  }
+}
+
+/* Immersive responsive */
+@media (max-width: 600px) {
+  .immersive__word .word-display__arabic {
+    font-size: 4.5rem;
+  }
+
+  .immersive__controls {
+    padding: 1rem;
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .immersive__transport button {
+    width: 2.75rem;
+    height: 2.75rem;
+    font-size: 1.3rem;
+  }
+
+  .immersive__play {
+    width: 3.25rem !important;
+    height: 3.25rem !important;
+    font-size: 1.6rem !important;
+  }
+
+  .immersive__speed input[type="range"] {
+    width: 160px;
+  }
+
+  .immersive__controls .settings-panel {
+    gap: 1rem;
+  }
+
+  .immersive__controls .settings-panel label {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .immersive__word .word-display__arabic {
+    font-size: 3.5rem;
   }
 }
